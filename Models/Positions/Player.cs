@@ -1,15 +1,17 @@
-﻿namespace reacttestapp.Models
+﻿using reactApp.Models.Positions;
+
+namespace reactApp.Models
 {
-    public abstract class Player
+    public abstract class Player : IPlayer
     {
         public string Name { get; set; }
-        public string Position { get; set; }
+        public Position Position { get; set; }
         public string Id { get; set; }
 
-        public int Projection { get; set; }
+        public double Projection { get; set; }
         public int Salary { get; set; }
 
-        public Player(string name, string position, string id, int proj, int salary)
+        public Player(string name, Position position, string id, double proj, int salary)
         {
             this.Name = name;
             this.Projection = proj;

@@ -1,10 +1,10 @@
-﻿using reacttestapp.Models;
+﻿using reactApp.Models;
 
 namespace reactApp.Models.Positions
 {
     public class Defense : Player
     {
-        public Defense(string name, string position, string id, int proj, int salary)
+        public Defense(string name, Position position, string id, double proj, int salary)
             : base(name, position, id, proj, salary)
         {
         }

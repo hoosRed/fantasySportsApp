@@ -1,11 +1,8 @@
-﻿using System;
-using reacttestapp.Models;
-
-namespace reactApp.Models.Positions
+﻿namespace reactApp.Models.Positions
 {
     public class Quarterback : Player
     {
-        public Quarterback(string name, string position, string id, int proj, int salary) 
+        public Quarterback(string name, Position position, string id, double proj, int salary) 
             : base(name, position, id, proj, salary)
         {
         }

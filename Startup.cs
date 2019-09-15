@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using reactApp.Models;
+using reactApp.Services;
 
 namespace reactApp
 {
@@ -29,6 +30,8 @@ namespace reactApp
 
             services.Add(new ServiceDescriptor(typeof(UserInformationContext), new UserInformationContext()));  
             services.Add(new ServiceDescriptor(typeof(NflProjectionsContext), new NflProjectionsContext()));  
+            services.Add(new ServiceDescriptor(typeof(ICsvReaderService), new CsvReaderService()));  
+            services.Add(new ServiceDescriptor(typeof(ILineupBuilderService), new LineupBuilderService()));  
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

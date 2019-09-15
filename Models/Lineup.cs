@@ -2,13 +2,13 @@
 using System.Linq;
 using reactApp.Models.Positions;
 
-namespace reacttestapp.Models
+namespace reactApp.Models
 {
     public class Lineup
     {
-        public List<Player> Players { get; set; }
-        public Player Quarterback { get; set; }
+        public List<IPlayer> Players { get; set; }
 
+        public Player Quarterback { get; set; }
         public RunningBack RunningBack1 { get; set; }
         public RunningBack RunningBack2 { get; set; }
 
@@ -27,7 +27,7 @@ namespace reacttestapp.Models
         public Lineup(Quarterback qb, 
                       RunningBack rb1, RunningBack rb2, 
                       WideReceiver wr1, WideReceiver wr2, WideReceiver wr3,
-                     TightEnd te1, IFlex flex, Defense defense, List<Player> players)
+                     TightEnd te1, IFlex flex, Defense defense)
         {
             this.Quarterback = qb;
             this.RunningBack1 = rb1;
@@ -39,12 +39,19 @@ namespace reacttestapp.Models
             this.Flex = flex;
             this.Defense = defense;
 
-            // build out lineup
-            this.Players = players;
+            //
+            this.Players.Add(this.Quarterback);
+            this.Players.Add(this.RunningBack1);
+            this.Players.Add(this.RunningBack2);
+            this.Players.Add(this.WideReceiver1);
+            this.Players.Add(this.WideReceiver2);
+            this.Players.Add(this.WideReceiver3);
+            this.Players.Add(this.TightEnd);
+            this.Players.Add(this.Flex);
+            this.Players.Add(this.Defense);
 
             // generate total projection
-            this.Projection = this.Players.Sum(p => p.Projection);
-
+            this.Projection = this.Players.Sum(x => x.Projection);
             // generate total salary
             this.Salary = this.Players.Sum(p => p.Salary);
         }

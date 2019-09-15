@@ -1,20 +1,30 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 using Microsoft.AspNetCore.Mvc;
 using reactApp.Models;
 using reactApp.Services;
 
-
 namespace reactApp.Controllers
-{ 
+{
     [Route("api/[controller]")]
     public class NflDataController : Controller
     {
+        /// <summary>
+        ///     The csv reader service.
+        /// </summary>
+        private readonly ICsvReaderService csvReaderService;
+
+        /// <summary>
+        ///     The csv reader service.
+        /// </summary>
+        private readonly ILineupBuilderService lineupBuilderService;
+
+        public NflDataController(ICsvReaderService csvReaderService, ILineupBuilderService lineupBuilderService)
+        {
+            this.csvReaderService = csvReaderService;
+            this.lineupBuilderService = lineupBuilderService;
+        }
+
         /// <summary>
         /// Projections Data
         /// </summary>
@@ -23,6 +33,12 @@ namespace reactApp.Controllers
         public IEnumerable<NflProj> ProjectionData()
         {
             NflData nflDataService = new NflData();
+
+            // test csv Reader
+            var allPlayers = csvReaderService.Execute(
+                @"/Users/tylerredshaw/Documents/dkLineups/nfl/week2Players.csv");
+
+            var lineups = lineupBuilderService.Execute(allPlayers);
 
             return nflDataService.GetProjections();
         }

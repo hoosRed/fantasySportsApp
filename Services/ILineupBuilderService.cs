@@ -5,7 +5,7 @@ namespace reactApp.Services
 {
     public interface ILineupBuilderService
     {
-        List<Lineup> Execute(List<Player> playerList);
+        IEnumerable<Lineup> Execute(List<Player> playerList);
 
     }
 }

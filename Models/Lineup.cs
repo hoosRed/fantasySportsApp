@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using reactApp.Models.Positions;
 
@@ -6,6 +7,7 @@ namespace reactApp.Models
 {
     public class Lineup
     {
+        public Guid Id { get; set; }
         public List<IPlayer> Players { get; set; }
 
         public Quarterback Quarterback { get; set; }
@@ -45,6 +47,7 @@ namespace reactApp.Models
             this.TightEnd = te1;
             this.Flex = flex;
             this.Defense = defense;
+            this.Id = Guid.NewGuid();
 
             // populate list of players
 

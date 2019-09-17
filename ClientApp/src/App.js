@@ -7,6 +7,7 @@ import { Counter } from './components/Counter';
 import { TestData } from './components/TestData';
 import { Login } from './components/Login';
 import { NflData } from './components/NflData';
+import { LineupBuilder } from './components/LineupBuilder';
 
 export default class App extends Component {
   displayName = App.name
@@ -18,8 +19,9 @@ export default class App extends Component {
         <Route path='/Login' component={Login} />
         <Route path='/counter' component={Counter} />
         <Route path='/fetchdata' component={FetchData} />
-            <Route path='/financialdata' component={TestData} />
-            <Route path='/nfldata' component={NflData} />
+        <Route path='/financialdata' component={TestData} />
+        <Route path='/nfldata' component={NflData} />
+        <Route path='/lineupbuilder' component={LineupBuilder} />
       </Layout>
     );
   }

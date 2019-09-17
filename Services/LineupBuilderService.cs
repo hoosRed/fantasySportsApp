@@ -9,10 +9,12 @@ namespace reactApp.Services
 {
     public class LineupBuilderService : ILineupBuilderService
     {
-        
+        private int SalaryCap = 50000;
+
+        private int MinSalaryCap = 48000;
+
         public IEnumerable<Lineup> Execute(List<Player> playerList){
-
-
+            
             var quarterBacks = BuildQuarterbacks(playerList);
 
             var rbCombos = BuildRunningBacks(playerList);
@@ -20,17 +22,17 @@ namespace reactApp.Services
             var wrCombos = BuildWideRecievers(playerList);
 
             var tightEnds = BuildTightEnds(playerList);
-            
-            // could also filter on rb, wr and te
+
             var flexPlays = playerList
                 .Where((Player p) => p is IFlex)
-                .Take(15)
+                .OrderByDescending(p => p.Projection/p.Salary)
+                .Take(20)
                 .Cast<IFlex>()
                 .ToList();
             
             var defenses = playerList
                 .Where((Player p) => p.Position == Position.DST)
-                .OrderByDescending((Player p) => p.Projection)
+                .OrderByDescending((Player p) => p.Projection/p.Salary)
                 .Take(4)
                 .Cast<Defense>()
                 .ToList();
@@ -39,50 +41,69 @@ namespace reactApp.Services
 
             // return top 20 lineups
             var topLineups = optimizedLineups
-                .Where(l => l.Salary <= 60000 && l.Salary >= 40000)
+                .Where(l => l.Salary <= SalaryCap)
                 .OrderByDescending(l => l.Projection)
-                .Take(30);
+                .Take(20);
+
+            var priceLineups = optimizedLineups
+                .Where(l => l.Salary <= SalaryCap)
+                .OrderByDescending(l => l.Salary)
+                .Take(20);
             
             return topLineups;
         }
 
-        public IEnumerable<Lineup> BuildLineups(IEnumerable<Quarterback> quarterBacks,
-                                                HashSet<RunningBack[]> rbCombos,
-                                                HashSet<WideReceiver[]> wrCombos,
-                                                IEnumerable<TightEnd> tightEnds,
-                                                IEnumerable<Defense> defenses,
-                                                IEnumerable<IFlex> flexPlays)
+        /// <summary>
+        ///     Constructs Lineups
+        /// </summary>
+        /// <returns>The lineups.</returns>
+        /// <param name="quarterBacks">Quarter backs.</param>
+        /// <param name="rbCombos">Rb combos.</param>
+        /// <param name="wrCombos">Wr combos.</param>
+        /// <param name="tightEnds">Tight ends.</param>
+        /// <param name="defenses">Defenses.</param>
+        /// <param name="flexPlays">Flex plays.</param>
+        public IEnumerable<Lineup> BuildLineups(IEnumerable<Quarterback> quarterBacks, List<RunningBack[]> rbCombos, List<WideReceiver[]> wrCombos,
+                                                IEnumerable<TightEnd> tightEnds, IEnumerable<Defense> defenses, IEnumerable<IFlex> flexPlays)
         {
             // build lineups
             var optimizedLineups = new List<Lineup>();
 
+            // TODO: need a better way to keep track of the salary 
+            // have to reset the total salary each time you enter the next loop
+            // could create a list and then use the lists sum to keep track of 
+            // everything in the list at that point in time
             foreach (var qb in quarterBacks)
             {
-                int salary = 60000;
+                int salary = SalaryCap;
+                salary = SalaryCap - qb.Salary;
 
                 foreach (var rbs in rbCombos)
                 {
+                    int rbsSalary = rbs.Sum(rb => rb.Salary);
+                    salary = SalaryCap - qb.Salary - rbsSalary;
+
                     foreach (var wrs in wrCombos)
                     {
-                        salary -= wrs.Sum(x => x.Salary);
-                        if (salary < 0) { continue; }
+                        var wrSal = wrs.Sum(wr => wr.Salary);
+                        if (salary - wrSal < 0) { continue; }
+                        salary = SalaryCap - qb.Salary - rbsSalary - wrSal;
 
                         foreach (var te in tightEnds)
                         {
-                            salary -= te.Salary;
-                            if (salary < 0) { continue; }
+                            if (salary - te.Salary < 0) { continue; }
+                            salary = SalaryCap - qb.Salary - rbsSalary - wrSal - te.Salary;
 
                             foreach (var dst in defenses)
                             {
-                                salary -= dst.Salary;
-                                if (salary < 0) { continue; }
+                                if (salary - dst.Salary < 0) { continue; }
+                                salary = SalaryCap - qb.Salary - rbsSalary - wrSal - te.Salary - dst.Salary;
 
                                 foreach (var flex in flexPlays)
                                 {
-                                    // can afford this flex
+                                    // can afford flex?
                                     if (salary < flex.Salary ) { continue; }
 
-                                    // TODO - refactor
                                     if (rbs.Contains(flex) || wrs.Contains(flex) || te.Id == flex.Id) { continue; }
 
                                     var lineup = new Lineup(qb, rbs, wrs, te, flex, dst);
@@ -93,7 +114,6 @@ namespace reactApp.Services
                     }
                 }
             }
-
             return optimizedLineups;
         }
 
@@ -105,7 +125,7 @@ namespace reactApp.Services
         private IEnumerable<Quarterback> BuildQuarterbacks(List<Player> playerList){
             return playerList
                 .Where((Player p) => p.Position == Position.QB)
-                .OrderByDescending((Player p) => p.Projection)
+                .OrderByDescending((Player p) => p.Projection/p.Salary)
                 .Take(5)
                 .Cast<Quarterback>()
                 .ToList();
@@ -116,19 +136,26 @@ namespace reactApp.Services
         /// </summary>
         /// <returns>The running backs.</returns>
         /// <param name="playerList">Player list.</param>
-        private HashSet<RunningBack[]> BuildRunningBacks(List<Player> playerList){
-            var runningBacks = playerList
+        private List<RunningBack[]> BuildRunningBacks(List<Player> playerList){
+            var valueBacks = playerList
                 .Where((Player p) => p.Position == Position.RB)
-                .OrderByDescending((Player p) => p.Projection)
-                .Take(15)
+                .OrderByDescending((Player p) => p.Projection/p.Salary)
+                .Take(5)
                 .Cast<RunningBack>()
                 .ToList();
 
-            // create RB HashSet
-            HashSet<RunningBack[]> rbCombos = new HashSet<RunningBack[]>();
+            var topBacks = playerList
+                .Where((Player p) => p.Position == Position.RB)
+                .OrderByDescending((Player p) => p.Projection)
+                .Take(5)
+                .Cast<RunningBack>()
+                .ToList();
 
+            var runningBacks = valueBacks.Union(topBacks).ToList();
 
-            // old
+            // create RB List
+            var rbCombos = new List<RunningBack[]>();
+
             for (int i = 0; i < runningBacks.Count - 1; i++){
                 var rb1 = runningBacks[i];
 
@@ -148,17 +175,26 @@ namespace reactApp.Services
         /// </summary>
         /// <returns>The wide recievers.</returns>
         /// <param name="playerList">Player list.</param>
-        private HashSet<WideReceiver[]> BuildWideRecievers(List<Player> playerList)
+        private List<WideReceiver[]> BuildWideRecievers(List<Player> playerList)
         {
-            var wideReceivers = playerList
+            var valueReceivers = playerList
                 .Where((Player p) => p.Position == Position.WR)
-                .OrderByDescending((Player p) => p.Projection)
-                .Take(20)
+                .OrderByDescending((Player p) => p.Projection/p.Salary)
+                .Take(5)
                 .Cast<WideReceiver>()
                 .ToList();
 
+            var topReceivers = playerList
+                .Where((Player p) => p.Position == Position.WR)
+                .OrderByDescending((Player p) => p.Projection)
+                .Take(5)
+                .Cast<WideReceiver>()
+                .ToList();
+
+            var wideReceivers = valueReceivers.Union(topReceivers).ToList();
+
             // create WR sets 
-            HashSet<WideReceiver[]> wrCombos = new HashSet<WideReceiver[]>();
+            var wrCombos = new List<WideReceiver[]>();
 
 
             for (int i = 0; i < wideReceivers.Count - 2; i++)
@@ -172,13 +208,10 @@ namespace reactApp.Services
                     for (int k = j + 1; k < wideReceivers.Count; k++)
                     {
                         var wr3 = wideReceivers[k];
-
                         wrCombos.Add(new WideReceiver[] { wr1, wr2, wr3 });
                     }
                 }
             }
-
-            // TODO - should be combinations not permutations
             return wrCombos;
         }
 
@@ -190,8 +223,8 @@ namespace reactApp.Services
         private IEnumerable<TightEnd> BuildTightEnds(List<Player> playerList){
             return playerList
                 .Where((Player p) => p.Position == Position.TE)
-                .OrderByDescending((Player p) => p.Projection)
-                .Take(10)
+                .OrderByDescending((Player p) => p.Projection / p.Salary)
+                .Take(5)
                 .Cast<TightEnd>()
                 .ToList();
         }

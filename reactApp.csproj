@@ -43,6 +43,7 @@
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="Models\Positions\" />
+    <Folder Include="LineupTemplates\" />
   </ItemGroup>
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->

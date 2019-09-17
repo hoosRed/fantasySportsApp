@@ -36,7 +36,7 @@ namespace reactApp.Controllers
 
             // test csv Reader
             var allPlayers = csvReaderService.Execute(
-                @"/Users/tylerredshaw/Documents/dkLineups/nfl/week2Players.csv");
+                @"/Users/tylerredshaw/Documents/reactFolder/react2/reactApp/LineupTemplates/week2Players.csv");
 
             var lineups = lineupBuilderService.Execute(allPlayers);
 

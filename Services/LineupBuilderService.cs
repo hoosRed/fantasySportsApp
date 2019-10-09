@@ -4,7 +4,6 @@ using System.Linq;
 using reactApp.Models;
 using reactApp.Models.Positions;
 
-
 namespace reactApp.Services
 {
     public class LineupBuilderService : ILineupBuilderService
@@ -43,7 +42,7 @@ namespace reactApp.Services
             var topLineups = optimizedLineups
                 .Where(l => l.Salary <= SalaryCap)
                 .OrderByDescending(l => l.Projection)
-                .Take(20);
+                .Take(30);
 
             var priceLineups = optimizedLineups
                 .Where(l => l.Salary <= SalaryCap)
@@ -123,12 +122,22 @@ namespace reactApp.Services
         /// <returns>The quarterbacks.</returns>
         /// <param name="playerList">Player list.</param>
         private IEnumerable<Quarterback> BuildQuarterbacks(List<Player> playerList){
-            return playerList
+
+            var valueQBs = playerList
                 .Where((Player p) => p.Position == Position.QB)
-                .OrderByDescending((Player p) => p.Projection/p.Salary)
-                .Take(5)
+                .OrderByDescending((Player p) => p.Projection / p.Salary)
+                .Take(3)
                 .Cast<Quarterback>()
                 .ToList();
+
+            var topQBs = playerList
+                .Where((Player p) => p.Position == Position.QB)
+                .OrderByDescending((Player p) => p.Projection)
+                .Take(2)
+                .Cast<Quarterback>()
+                .ToList();
+
+            return valueQBs.Union(topQBs).ToList();
         }
 
         /// <summary>
@@ -180,14 +189,14 @@ namespace reactApp.Services
             var valueReceivers = playerList
                 .Where((Player p) => p.Position == Position.WR)
                 .OrderByDescending((Player p) => p.Projection/p.Salary)
-                .Take(5)
+                .Take(6)
                 .Cast<WideReceiver>()
                 .ToList();
-
+            
             var topReceivers = playerList
                 .Where((Player p) => p.Position == Position.WR)
                 .OrderByDescending((Player p) => p.Projection)
-                .Take(5)
+                .Take(6)
                 .Cast<WideReceiver>()
                 .ToList();
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import "./LineupBuilder.css"; 
 export class LineupBuilder extends Component {
   displayName = LineupBuilder.name
 
@@ -14,53 +14,66 @@ export class LineupBuilder extends Component {
       });
   }
 
-  static renderUsersTable(lineups) {
+  static renderSingleLineup(lineup) {
     return (
-      <table className='table'>
-        <thead>
+      <table className='lineup'>
+        <thead class ='card'>
           <tr>
-            <th>Projection</th>
+            <th>Position</th>
+            <th>Player</th>
             <th>Salary</th>
-            <th>Quarterback</th>
-            <th>RB1</th>
-            <th>RB2</th>
-            <th>WR1</th>
-            <th>WR2</th>
-            <th>WR3</th>
-            <th>TE</th>
-            <th>Flex</th>
-            <th>DST</th>
+            <th>Proj</th>
           </tr>
         </thead>
         <tbody>
-          {lineups.map(lineup =>
-            <tr key={lineup.id}>
-              <td>{lineup.projection.toFixed(1)}</td>
-              <td>${lineup.salary.toFixed(0)}</td>
-              <td>{lineup.quarterback.name}</td>
-              <td>{lineup.runningBack1.name}</td>
-              <td>{lineup.runningBack2.name}</td>
-              <td>{lineup.wideReceiver1.name}</td>
-              <td>{lineup.wideReceiver2.name}</td>
-              <td>{lineup.wideReceiver3.name}</td>
-              <td>{lineup.tightEnd.name}</td>
-              <td>{lineup.flex.name}</td>
-              <td>{lineup.defense.name}</td>
-            </tr>
-          )}
+          <tr>
+            <td>QB</td><td>{lineup.quarterback.name}</td><td>${lineup.quarterback.salary}</td><td>{lineup.quarterback.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>RB</td><td>{lineup.runningBack1.name}</td><td>${lineup.runningBack1.salary}</td><td>{lineup.runningBack1.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>RB</td><td>{lineup.runningBack2.name}</td><td>${lineup.runningBack2.salary}</td><td>{lineup.runningBack2.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>WR</td><td>{lineup.wideReceiver1.name}</td><td>${lineup.wideReceiver1.salary}</td><td>{lineup.wideReceiver1.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>WR</td><td>{lineup.wideReceiver2.name}</td><td>${lineup.wideReceiver2.salary}</td><td>{lineup.wideReceiver2.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>WR</td><td>{lineup.wideReceiver3.name}</td><td>${lineup.wideReceiver3.salary}</td><td>{lineup.wideReceiver3.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>TE</td><td>{lineup.tightEnd.name}</td><td>${lineup.tightEnd.salary}</td><td>{lineup.tightEnd.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>Flex</td><td>{lineup.flex.name}</td><td>${lineup.flex.salary}</td><td>{lineup.flex.projection.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>D/ST</td><td>{lineup.defense.name}</td><td>${lineup.defense.salary}</td><td>{lineup.defense.projection.toFixed(1)}</td>
+          </tr>
         </tbody>
       </table>
+    );
+  }
+
+  static renderLineups(lineups) {
+    return (
+      <div class = 'lineupContainer'>
+        {lineups.map(lineup => this.renderSingleLineup(lineup))}
+      </div>
     );
   }
 
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
-      : LineupBuilder.renderUsersTable(this.state.lineups);
+      : LineupBuilder.renderLineups(this.state.lineups);
 
     return (
       <div>
-        <h1>Week 2 NFL Lineup Optimizer</h1>
+        <h1>NFL Lineup Optimizer</h1>
         {contents}
       </div>
     );
